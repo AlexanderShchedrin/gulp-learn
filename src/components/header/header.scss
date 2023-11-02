@@ -1,0 +1,10 @@
+.header {
+	background: gray;
+	padding: 100px;
+	font-size: 20px;
+	text-align: center;
+
+	@media (max-width: 1200px) {
+		font-size: 30px;
+	}
+}
