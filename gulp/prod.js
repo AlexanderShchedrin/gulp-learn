@@ -1,18 +1,30 @@
 const gulp = require('gulp');
+
+// HTML
 const fileInclude = require('gulp-file-include');
+const htmlClean = require('gulp-htmlclean');
+
+// SCSS
 const sass = require('gulp-sass')(require('sass'));
 const sassGlob = require('gulp-sass-glob');
-const server = require('gulp-server-livereload');
+const autoprefixer = require('gulp-autoprefixer');
+const csso = require('gulp-csso')
+const sourceMaps = require('gulp-sourcemaps');
+const groupMedia = require('gulp-group-css-media-queries')
+
+// IMAGES
+const imageMin = require('gulp-imagemin');
+const webp = require('gulp-webp');
+
 const clean = require('gulp-clean');
 const fs = require('fs');
-const sourceMaps = require('gulp-sourcemaps');
-// const groupMedia = require('gulp-group-css-media-queries')
+
 const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
 const webpackStream = require('webpack-stream')
 const webpackConfig = require('./../webpack.config');
 const babel = require('gulp-babel');
-const imageMin = require('gulp-imagemin');
+
 const changed = require('gulp-changed');
 
 const DIST = './dist/';
@@ -38,6 +50,7 @@ gulp.task('html', () => {
 			prefix: '@@',
 			basepath: '@file',
 		}))
+		.pipe(htmlClean())
 		.pipe(gulp.dest(DIST));
 });
 
@@ -46,15 +59,22 @@ gulp.task('sass', () => {
 		.pipe(changed(`${DIST}scss/`))
 		.pipe(plumber(plumberConfig({ title: 'SASS' })))
 		.pipe(sourceMaps.init())
+		.pipe(autoprefixer())
 		.pipe(sassGlob())
+		.pipe(groupMedia())
 		.pipe(sass())
-		// .pipe(groupMedia())
+		.pipe(csso())
 		.pipe(sourceMaps.write())
 		.pipe(gulp.dest(DIST));
 });
 
 gulp.task('copyImages', () => {
 	return gulp.src(IMAGE_SRC)
+		.pipe(changed(`${DIST}images/`))
+		.pipe(webp())
+		.pipe(gulp.dest(`${DIST}images/`))
+
+		.pipe(gulp.src(IMAGE_SRC))
 		.pipe(changed(`${DIST}images/`))
 		.pipe(imageMin({ verbose: true }))
 		.pipe(gulp.dest(`${DIST}images`));
@@ -81,28 +101,12 @@ gulp.task('js', () => {
 		.pipe(gulp.dest(DIST))
 })
 
-gulp.task('server', () => {
-	return gulp.src(DIST)
-		.pipe(server({
-			livereload: true,
-			open: true,
-		}));
-});
 
 gulp.task('clean', (done) => {
 	if (!fs.existsSync(DIST)) return done();
 
 	return gulp.src(DIST, { read: false })
 		.pipe(clean({ force: true }));
-});
-
-gulp.task('watch', () => {
-	gulp.watch('./src/**/*.scss', gulp.parallel('sass'));
-	gulp.watch('./src/**/*.html', gulp.parallel('html'));
-	gulp.watch('./src/images/**/*', gulp.parallel('copyImages'));
-	gulp.watch('./src/fonts/**/*', gulp.parallel('copyFonts'));
-	gulp.watch('./src/files/**/*', gulp.parallel('copyFiles'));
-	gulp.watch('./src/**/*.js', gulp.parallel('js'));
 });
 
 gulp.task('run', gulp.series(
