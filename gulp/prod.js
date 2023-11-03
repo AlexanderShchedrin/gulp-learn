@@ -6,6 +6,7 @@ const server = require('gulp-server-livereload');
 const clean = require('gulp-clean');
 const fs = require('fs');
 const sourceMaps = require('gulp-sourcemaps');
+// const groupMedia = require('gulp-group-css-media-queries')
 const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
 const webpackStream = require('webpack-stream')
@@ -14,7 +15,7 @@ const babel = require('gulp-babel');
 const imageMin = require('gulp-imagemin');
 const changed = require('gulp-changed');
 
-const BUILD = './build/';
+const DIST = './dist/';
 const HTML_SRC = './src/pages/*.html'
 const SCSS_SRC = './src/scss/*.scss'
 const IMAGE_SRC = './src/images/**/*'
@@ -31,56 +32,57 @@ const plumberConfig = ({ title }) => ({
 
 gulp.task('html', () => {
 	return gulp.src(HTML_SRC)
-		.pipe(changed(`${BUILD}`))
+		.pipe(changed(`${DIST}`))
 		.pipe(plumber(plumberConfig({ title: 'HTML' })))
 		.pipe(fileInclude({
 			prefix: '@@',
 			basepath: '@file',
 		}))
-		.pipe(gulp.dest(BUILD));
+		.pipe(gulp.dest(DIST));
 });
 
 gulp.task('sass', () => {
 	return gulp.src(SCSS_SRC)
-		.pipe(changed(`${BUILD}scss/`))
+		.pipe(changed(`${DIST}scss/`))
 		.pipe(plumber(plumberConfig({ title: 'SASS' })))
 		.pipe(sourceMaps.init())
 		.pipe(sassGlob())
 		.pipe(sass())
+		// .pipe(groupMedia())
 		.pipe(sourceMaps.write())
-		.pipe(gulp.dest(BUILD));
+		.pipe(gulp.dest(DIST));
 });
 
 gulp.task('copyImages', () => {
 	return gulp.src(IMAGE_SRC)
-		.pipe(changed(`${BUILD}images/`))
+		.pipe(changed(`${DIST}images/`))
 		.pipe(imageMin({ verbose: true }))
-		.pipe(gulp.dest(`${BUILD}images`));
+		.pipe(gulp.dest(`${DIST}images`));
 });
 
 gulp.task('copyFonts', () => {
 	return gulp.src(FONTS_SRC)
-		.pipe(changed(`${BUILD}fonts/`))
-		.pipe(gulp.dest(`${BUILD}fonts`));
+		.pipe(changed(`${DIST}fonts/`))
+		.pipe(gulp.dest(`${DIST}fonts`));
 });
 
 gulp.task('copyFiles', () => {
 	return gulp.src(FILES_SR)
-		.pipe(changed(`${BUILD}files/`))
-		.pipe(gulp.dest(`${BUILD}files`));
+		.pipe(changed(`${DIST}files/`))
+		.pipe(gulp.dest(`${DIST}files`));
 });
 
 gulp.task('js', () => {
 	return gulp.src('./src/scripts/*.js')
-		.pipe(changed(`${BUILD}*.js`))
+		.pipe(changed(`${DIST}*.js`))
 		.pipe(plumber(plumberConfig({ title: 'JS' })))
 		.pipe(babel())
 		.pipe(webpackStream(webpackConfig))
-		.pipe(gulp.dest(BUILD))
+		.pipe(gulp.dest(DIST))
 })
 
 gulp.task('server', () => {
-	return gulp.src(BUILD)
+	return gulp.src(DIST)
 		.pipe(server({
 			livereload: true,
 			open: true,
@@ -88,9 +90,9 @@ gulp.task('server', () => {
 });
 
 gulp.task('clean', (done) => {
-	if (!fs.existsSync(BUILD)) return done();
+	if (!fs.existsSync(DIST)) return done();
 
-	return gulp.src(BUILD, { read: false })
+	return gulp.src(DIST, { read: false })
 		.pipe(clean({ force: true }));
 });
 
@@ -106,6 +108,5 @@ gulp.task('watch', () => {
 gulp.task('run', gulp.series(
 	'clean',
 	gulp.parallel('html', 'sass', 'copyImages', 'copyFonts', 'copyFiles', 'js'),
-	gulp.parallel('server', 'watch')
 ))
 

@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "gulp": "gulp dev:watch"
+    "dev:watch": "gulp run",
+    "prod:build": "gulp run"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
