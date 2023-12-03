@@ -1,0 +1,28 @@
+@import "variables";
+@font-face {
+	font-family: $icons-font-family;
+	font-weight: normal;
+	font-style: normal;
+	font-display: block;
+	src: url('#{$icons-font-folder}/#{$icons-font-family}.woff2') format('woff2');
+}
+
+.fi {
+	font-family: $icons-font-family;
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+@each $key, $value in $icons {
+	.fi_icon_#{$key} {
+		&:before{
+			content: $value;
+		}
+	}
+}

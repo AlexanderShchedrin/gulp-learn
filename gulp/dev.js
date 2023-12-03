@@ -1,5 +1,9 @@
 const gulp = require('gulp');
+const iconfont = require('gulp-iconfont');
+const runTimestamp = Math.round(Date.now()/1000);
 const fileInclude = require('gulp-file-include');
+const iconfontCss = require('gulp-iconfont-css');
+
 const sass = require('gulp-sass')(require('sass'));
 const sassGlob = require('gulp-sass-glob');
 const server = require('gulp-server-livereload');
@@ -15,11 +19,12 @@ const imageMin = require('gulp-imagemin');
 const changed = require('gulp-changed');
 
 const BUILD = './build/';
-const HTML_SRC = './src/pages/*.html'
-const SCSS_SRC = './src/scss/*.scss'
-const IMAGE_SRC = './src/images/**/*'
-const FONTS_SRC = './src/fonts/**/*'
-const FILES_SR = './src/files/**/*'
+const HTML_SRC = './src/pages/*.html';
+const SCSS_SRC = './src/scss/*.scss';
+const IMAGE_SRC = './src/images/**/*';
+const FONTS_SRC = './src/fonts/**/*';
+const FILES_SRC = './src/files/**/*';
+const ICONS_SRC = './src/fi/svg/*.svg';
 
 const plumberConfig = ({ title }) => ({
 	errorHandler: notify.onError({
@@ -65,7 +70,7 @@ gulp.task('copyFonts', () => {
 });
 
 gulp.task('copyFiles', () => {
-	return gulp.src(FILES_SR)
+	return gulp.src(FILES_SRC)
 		.pipe(changed(`${BUILD}files/`))
 		.pipe(gulp.dest(`${BUILD}files`));
 });
@@ -94,6 +99,23 @@ gulp.task('clean', (done) => {
 		.pipe(clean({ force: true }));
 });
 
+gulp.task('Iconfont', () => {
+	return gulp.src(ICONS_SRC)
+		.pipe(iconfontCss({
+			path: './src/fi/templates/icon-template.scss',
+			fontName: 'fi',
+			targetPath: './../variables.scss',
+			fontPath: './src/fi/font'
+		}))
+		.pipe(iconfont({
+			fontName: 'fi', // required
+			prependUnicode: false, // recommended option
+			formats: ['woff2'], // default, 'woff2' and 'svg' are available
+			timestamp: runTimestamp, // recommended to get consistent builds when watching files
+		}))
+		.pipe(gulp.dest('./src/fi/font/'));
+});
+
 gulp.task('watch', () => {
 	gulp.watch('./src/**/*.scss', gulp.parallel('sass'));
 	gulp.watch('./src/**/*.html', gulp.parallel('html'));
@@ -101,6 +123,7 @@ gulp.task('watch', () => {
 	gulp.watch('./src/fonts/**/*', gulp.parallel('copyFonts'));
 	gulp.watch('./src/files/**/*', gulp.parallel('copyFiles'));
 	gulp.watch('./src/**/*.js', gulp.parallel('js'));
+	gulp.watch(ICONS_SRC, gulp.parallel('Iconfont'));
 });
 
 gulp.task('run', gulp.series(

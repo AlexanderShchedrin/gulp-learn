@@ -1,6 +1,7 @@
 {
   "scripts": {
     "dev:watch": "gulp run",
+    "dev:Iconfont": "gulp Iconfont",
     "prod:build": "gulp run"
   },
   "browserslist": [
@@ -10,6 +11,7 @@
     "@babel/core": "^7.23.2",
     "@babel/preset-env": "^7.23.2",
     "css-loader": "^6.8.1",
+    "fantasticon": "^2.0.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-babel": "^8.0.0",
@@ -19,6 +21,8 @@
     "gulp-file-include": "^2.3.0",
     "gulp-group-css-media-queries": "^1.2.2",
     "gulp-htmlclean": "^2.7.22",
+    "gulp-iconfont": "^11.0.1",
+    "gulp-iconfont-css": "^3.0.0",
     "gulp-imagemin": "^7.1.0",
     "gulp-notify": "^4.0.0",
     "gulp-plumber": "^1.2.1",

@@ -1,0 +1,4 @@
+$icons: (
+<% _.each(glyphs, function(glyph) {
+%> "<%= glyph.fileName %>": "\<%= glyph.codePoint %>",
+<% }); %>);
